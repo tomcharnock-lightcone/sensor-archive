@@ -1,0 +1,10 @@
+[project]
+name = "sensor-archive"
+version = "0.0.1"
+requires-python = ">=3.14"
+dependencies = [
+    "polars>=2.1.0",
+]
+
+[tool.uv]
+required-version = ">=0.7"

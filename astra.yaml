@@ -1,0 +1,74 @@
+# ASTRA Analysis Specification
+
+spec_version: "0.1.0"
+label: "sensor-archive"
+description: >-
+  Archive of the 2023 raw readings of the city's 40 low-cost temperature
+  sensors, one reading every 10 seconds per sensor, with daily summaries per
+  sensor made both with and without despiking.
+
+inputs:
+  sensor_dump:
+    label: Raw sensor dump, 2023
+    path: data/sensor-dump-2023.csv
+    description: >-
+      Every reading of 2023 as delivered: columns time (ISO 8601, UTC),
+      sensor (s01 to s40), temp_c and battery_v. Its git-annex key is the
+      SHA-256 the delivery's SHA256SUMS lists for it. The bytes stay where
+      they were delivered, lc-trial/incoming/, which git-annex knows as a
+      file:// URL, and are not published.
+
+decisions:
+  despike:
+    label: Despiking
+    rationale: >-
+      The raw readings carry occasional spikes, isolated single readings far
+      from their neighbours. Removing them hardly moves a day's mean but can
+      change its minimum and maximum by many degrees. Whether to remove them
+      is not settled yet, so both are kept for later work to choose from.
+    options:
+      none:
+        label: No despiking
+        description: Every reading is summarised.
+      median3c:
+        label: Rolling median, 3 °C
+        description: >-
+          A reading more than 3 °C from the median of the 31 readings centred
+          on it (5 minutes) is dropped. The median is taken per sensor within
+          each unbroken run of 10-second readings, so it never spans a gap.
+          In the 2023 dump, readings sit either within 2 °C of that median
+          (noise and real change) or more than 4 °C from it (the spikes), so
+          3 °C separates them with margin on both sides.
+      hampel:
+        label: Hampel filter (scaled MAD)
+        excluded: >-
+          The sensors report in 0.01 °C steps, so over quiet stretches the
+          median absolute deviation is zero or nearly so, and the filter flags
+          hundreds of thousands of ordinary readings as spikes.
+
+outputs:
+  daily_summary:
+    label: Daily summary per sensor
+    type: table
+    format: csv
+    description: >-
+      One row per sensor per UTC day with readings: date, sensor, n_readings
+      (readings summarised), mean_c, min_c, max_c, std_c (sample standard
+      deviation, ddof = 1) and n_removed (readings dropped by despiking).
+    inputs: [sensor_dump]
+    decisions: [despike]
+    recipe:
+      command: python src/daily_summary.py {inputs.sensor_dump} {decisions.despike} {output}
+      resources:
+        cpus: 8
+        memory: 16Gi
+
+universes:
+  raw:
+    label: Not despiked
+    decisions:
+      despike: none
+  despiked:
+    label: Despiked
+    decisions:
+      despike: median3c
