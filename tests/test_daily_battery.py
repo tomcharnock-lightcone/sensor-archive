@@ -1,4 +1,9 @@
-"""Tests for src/daily_battery.py, run as the recipe runs it: a CSV in, a CSV out."""
+"""Tests for src/daily_battery.py, run as the recipe runs it: a CSV in, a CSV out.
+
+Run with `uv run --with pytest pytest tests/`. pytest is deliberately not a
+project dependency: lc counts uv.lock as the results' environment, so adding
+it would mark every result as made under an earlier environment.
+"""
 
 import csv
 import subprocess

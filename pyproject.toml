@@ -8,8 +8,3 @@ dependencies = [
 
 [tool.uv]
 required-version = ">=0.7"
-
-[dependency-groups]
-dev = [
-    "pytest>=9.2.0",
-]
