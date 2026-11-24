@@ -10,7 +10,7 @@
 # line above it reaches one.
 * annex.largefiles=nothing
 * filter=annex
-results/** annex.largefiles=nothing
+results/** annex.largefiles=anything
 data/** annex.largefiles=anything
 .datalad/environments/*/image annex.largefiles=anything
 .astra/** annex.largefiles=nothing
