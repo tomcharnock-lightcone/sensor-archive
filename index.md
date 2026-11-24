@@ -35,16 +35,35 @@ both answers are built, one per universe:
 A Hampel filter based on the median absolute deviation was considered and
 excluded. Its reason is recorded in `astra.yaml`.
 
+`src/daily_battery.py` summarises each sensor's battery voltage per UTC day,
+to locate battery swaps: the number of readings, their mean, minimum and
+maximum, the day's first and last readings, and `rise_v`, the largest rise
+from the sensor's previous reading to one of the day's readings. Between swaps
+the voltage only falls, in 0.01 V steps, so a swap is a row with `rise_v`
+above 0. A rise across midnight or across a gap in the record counts on the
+day of the later reading. 3.35 V is the lowest value the sensors report, so a
+reading of 3.35 V may stand for less. Despiking concerns temperature only, so
+this summary is made once rather than per universe.
+
 ## Results
 
 | File | Universe |
 |---|---|
 | `results/raw/daily_summary.csv` | not despiked |
 | `results/despiked/daily_summary.csv` | despiked |
+| `results/daily_battery.csv` | made once |
 
-Both have one row per sensor per UTC day with readings, and the columns
-`date, sensor, n_readings, mean_c, min_c, max_c, std_c, n_removed`. Days a
-sensor recorded nothing are absent rather than empty.
+The two temperature summaries have the columns
+`date, sensor, n_readings, mean_c, min_c, max_c, std_c, n_removed`; the
+battery summary has `date, sensor, n_readings, mean_v, min_v, max_v, first_v,
+last_v, rise_v`. All three have one row per sensor per UTC day with readings:
+days a sensor recorded nothing are absent rather than empty.
+
+The swaps are the battery summary's rows with `rise_v` above 0, for example:
+
+```sh
+awk -F, 'NR == 1 || $9 > 0' results/daily_battery.csv
+```
 
 ## Maintaining the archive
 

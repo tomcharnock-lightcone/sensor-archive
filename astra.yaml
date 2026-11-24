@@ -63,6 +63,26 @@ outputs:
         cpus: 8
         memory: 16Gi
 
+  daily_battery:
+    label: Daily battery voltage per sensor
+    type: table
+    format: csv
+    description: >-
+      One row per sensor per UTC day with readings, to locate battery swaps:
+      date, sensor, n_readings, mean_v, min_v, max_v, first_v and last_v (the
+      day's first and last readings) and rise_v, the largest rise from the
+      sensor's previous reading to one of the day's readings, 0 if none. A
+      rise across midnight or across a gap in the record counts on the day of
+      the later reading. Between swaps the voltage only falls, so the rows
+      with rise_v > 0 are the swaps. 3.35 V is the lowest value the sensors
+      report, so a reading of 3.35 V may stand for less.
+    inputs: [sensor_dump]
+    recipe:
+      command: python src/daily_battery.py {inputs.sensor_dump} {output}
+      resources:
+        cpus: 8
+        memory: 16Gi
+
 universes:
   raw:
     label: Not despiked
