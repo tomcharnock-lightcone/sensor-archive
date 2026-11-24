@@ -35,6 +35,12 @@ both answers are built, one per universe:
 A Hampel filter based on the median absolute deviation was considered and
 excluded. Its reason is recorded in `astra.yaml`.
 
+The network's gateways apply the same despiking to live readings with a C
+library, `despike/`, which has no Python dependency. The archive itself keeps
+despiking in polars. `tests/test_despike_c.py` checks that the C library
+flags exactly the readings the archive flags. Run on every reading of the
+2023 dump, the two agree on all of them.
+
 `src/daily_battery.py` summarises each sensor's battery voltage per UTC day,
 to locate battery swaps: the number of readings, their mean, minimum and
 maximum, the day's first and last readings, and `rise_v`, the largest rise
@@ -73,6 +79,9 @@ data/sensor-dump-2023.csv`): `lc publish` sends every annexed file whose
 bytes this clone holds to the project's data store, and the raw dump is not
 meant to go there.
 
-The tests run with `uv run --with pytest pytest tests/`. pytest is kept out of
-`pyproject.toml` on purpose: lc takes `uv.lock` as the environment the results
-were made under, so adding a dependency there marks every result as behind.
+The tests run with `uv run --with pytest --with numpy pytest tests/`. They
+need a C compiler on `PATH` to test `despike/`. Setting `DESPIKE_RAW_CSV` to
+the raw dump's path also compares the C library with the archive on every
+reading. pytest and numpy are kept out of `pyproject.toml` on purpose: lc
+takes `uv.lock` as the environment the results were made under, so adding a
+dependency there marks every result as behind.

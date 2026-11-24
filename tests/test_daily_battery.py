@@ -1,8 +1,9 @@
 """Tests for src/daily_battery.py, run as the recipe runs it: a CSV in, a CSV out.
 
-Run with `uv run --with pytest pytest tests/`. pytest is deliberately not a
-project dependency: lc counts uv.lock as the results' environment, so adding
-it would mark every result as made under an earlier environment.
+Run with `uv run --with pytest --with numpy pytest tests/`. pytest and numpy
+are deliberately not project dependencies: lc counts uv.lock as the results'
+environment, so adding them would mark every result as made under an earlier
+environment.
 """
 
 import csv
