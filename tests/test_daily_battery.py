@@ -15,8 +15,12 @@ SCRIPT = Path(__file__).resolve().parent.parent / "src" / "daily_battery.py"
 HEADER = "time,sensor,temp_c,battery_v"
 
 #: Deliberately out of order. s01 is swapped across midnight (3.50 -> 3.95);
-#: s02 is swapped during a six-hour gap in its record (3.85 -> 3.95).
+#: s02 is swapped during a six-hour gap in its record (3.85 -> 3.95). s03 has a
+#: single reading a day: its first follows s02's last reading (3.94 -> 3.95),
+#: which is not a rise, and its second is a fall, which is not one either.
 ROWS = [
+    "2023-01-02T12:00:00Z,s03,5.0,3.94",
+    "2023-01-01T12:00:00Z,s03,5.0,3.95",
     "2023-01-02T00:00:00Z,s01,5.0,3.95",
     "2023-01-01T00:00:00Z,s01,5.0,3.52",
     "2023-01-01T00:00:10Z,s01,5.0,3.51",
@@ -31,7 +35,9 @@ EXPECTED = """\
 date,sensor,n_readings,mean_v,min_v,max_v,first_v,last_v,rise_v
 2023-01-01,s01,3,3.510000,3.500000,3.520000,3.520000,3.500000,0.000000
 2023-01-01,s02,4,3.897500,3.850000,3.950000,3.850000,3.940000,0.100000
+2023-01-01,s03,1,3.950000,3.950000,3.950000,3.950000,3.950000,0.000000
 2023-01-02,s01,1,3.950000,3.950000,3.950000,3.950000,3.950000,0.450000
+2023-01-02,s03,1,3.940000,3.940000,3.940000,3.940000,3.940000,0.000000
 """
 
 

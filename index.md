@@ -72,3 +72,7 @@ Drop that copy again before publishing (`git annex drop
 data/sensor-dump-2023.csv`): `lc publish` sends every annexed file whose
 bytes this clone holds to the project's data store, and the raw dump is not
 meant to go there.
+
+The tests run with `uv run --with pytest pytest tests/`. pytest is kept out of
+`pyproject.toml` on purpose: lc takes `uv.lock` as the environment the results
+were made under, so adding a dependency there marks every result as behind.
