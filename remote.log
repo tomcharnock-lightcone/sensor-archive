@@ -1,1 +1,2 @@
 8af44d00-3455-4c2a-87c1-b15d7707bb4e autoenable=true encryption=none name=origin-storage type=git-lfs url=https://github.com/tomcharnock-lightcone/sensor-archive timestamp=1795548254s
+e012f348-0c81-4523-8812-217dcaf5f009 autoenable=true sameas-name=origin-storage-ssh sameas-uuid=8af44d00-3455-4c2a-87c1-b15d7707bb4e type=git-lfs url=git@github.com:tomcharnock-lightcone/sensor-archive.git timestamp=1795548254s
