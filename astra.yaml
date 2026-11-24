@@ -39,6 +39,13 @@ decisions:
           In the 2023 dump, readings sit either within 2 °C of that median
           (noise and real change) or more than 4 °C from it (the spikes), so
           3 °C separates them with margin on both sides.
+      median1c:
+        label: Rolling median, 1 °C
+        description: >-
+          As median3c, but a reading more than 1 °C from the median is
+          dropped. In the 2023 dump ordinary readings reach up to 2 °C from
+          that median, so this drops some of them along with the spikes. It
+          is there to show how much the threshold matters.
       hampel:
         label: Hampel filter (scaled MAD)
         excluded: >-
@@ -92,3 +99,7 @@ universes:
     label: Despiked
     decisions:
       despike: median3c
+  despiked_1c:
+    label: Despiked at 1 °C
+    decisions:
+      despike: median1c

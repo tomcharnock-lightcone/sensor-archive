@@ -24,19 +24,23 @@ number of readings, their mean, minimum, maximum and sample standard deviation
 (ddof = 1), plus how many readings despiking dropped.
 
 The raw readings contain occasional spikes: isolated single readings far from
-their neighbours. Whether to remove them is the `despike` decision, and
-both answers are built, one per universe:
+their neighbours. Whether to remove them, and at what threshold, is the
+`despike` decision, and each answer is built in its own universe:
 
 - `raw` (`despike: none`): every reading is summarised.
 - `despiked` (`despike: median3c`): a reading more than 3 °C from the median
   of the 31 readings centred on it (5 minutes) is dropped. The median is
   taken per sensor within each unbroken run of readings, never across a gap.
+- `despiked_1c` (`despike: median1c`): the same filter at 1 °C, to show how
+  much the threshold matters. Ordinary readings can lie up to 2 °C from the
+  median, so this drops some of them along with the spikes; compare its
+  `n_removed` with the `despiked` summary's.
 
 A Hampel filter based on the median absolute deviation was considered and
 excluded. Its reason is recorded in `astra.yaml`.
 
-The network's gateways apply the same despiking to live readings with a C
-library, `despike/`, which has no Python dependency. The archive itself keeps
+The network's gateways apply the 3 °C despiking (`median3c`) to live readings
+with a C library, `despike/`, which has no Python dependency. The archive itself keeps
 despiking in polars. `tests/test_despike_c.py` checks that the C library
 flags exactly the readings the archive flags. Run on every reading of the
 2023 dump, the two agree on all of them.
@@ -57,12 +61,13 @@ this summary is made once rather than per universe.
 |---|---|
 | `results/raw/daily_summary.csv` | not despiked |
 | `results/despiked/daily_summary.csv` | despiked |
+| `results/despiked_1c/daily_summary.csv` | despiked at 1 °C |
 | `results/daily_battery.csv` | made once |
 
-The two temperature summaries have the columns
+The temperature summaries have the columns
 `date, sensor, n_readings, mean_c, min_c, max_c, std_c, n_removed`; the
 battery summary has `date, sensor, n_readings, mean_v, min_v, max_v, first_v,
-last_v, rise_v`. All three have one row per sensor per UTC day with readings:
+last_v, rise_v`. All have one row per sensor per UTC day with readings:
 days a sensor recorded nothing are absent rather than empty.
 
 The swaps are the battery summary's rows with `rise_v` above 0, for example:

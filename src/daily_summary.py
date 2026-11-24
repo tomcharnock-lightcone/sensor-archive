@@ -9,6 +9,7 @@ DESPIKE  an option of the `despike` decision in astra.yaml:
            median3c  drop a reading more than 3 degC from the median of the
                      31 readings centred on it (5 minutes at 10 s), computed
                      per sensor within each unbroken run of readings
+           median1c  the same, at 1 degC
 OUT_CSV  one row per sensor per UTC day that has readings:
            date, sensor, n_readings, mean_c, min_c, max_c, std_c, n_removed
          n_readings counts the readings summarised (after despiking);
@@ -29,10 +30,11 @@ STEP_S = 10
 #: The rolling median's window, in readings: 5 minutes, centred.
 WINDOW = 31
 
-#: How far, in degC, a reading may sit from its rolling median and be kept.
-THRESHOLD_C = 3.0
+#: How far, in degC, a reading may sit from its rolling median and be kept,
+#: for each option that despikes.
+THRESHOLD_C = {"median3c": 3.0, "median1c": 1.0}
 
-DESPIKE = ("none", "median3c")
+DESPIKE = ("none", "median3c", "median1c")
 
 
 def load(path: str) -> pl.DataFrame:
@@ -74,7 +76,7 @@ def flag_spikes(df: pl.DataFrame, despike: str) -> pl.DataFrame:
     )
     return (
         df.with_columns(run=run)
-        .with_columns(spike=(pl.col("temp_c") - median).abs() > THRESHOLD_C)
+        .with_columns(spike=(pl.col("temp_c") - median).abs() > THRESHOLD_C[despike])
         .drop("run")
     )
 
